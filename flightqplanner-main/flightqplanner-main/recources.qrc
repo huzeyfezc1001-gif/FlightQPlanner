@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>modern-default.css</file>
+    </qresource>
+</RCC>
