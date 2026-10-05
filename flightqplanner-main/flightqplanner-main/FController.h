@@ -2,15 +2,15 @@
 #define FCONTROLLER_H
 
 #include <chrono>
-#include <mavsdk/mavsdk.h>
-#include <mavsdk/plugins/action/action.h>
-#include <mavsdk/plugins/telemetry/telemetry.h>
-#include <mavsdk/plugins/param/param.h>
-#include <mavsdk/plugins/offboard/offboard.h>
+#include <mavsdk/mavsdk.hpp>
+#include <mavsdk/plugins/action/action.hpp>
+#include <mavsdk/plugins/telemetry/telemetry.hpp>
+#include <mavsdk/plugins/param/param.hpp>
+#include <mavsdk/plugins/offboard/offboard.hpp>
 #include <mavsdk/mavlink/protocol.h>
 #include <mavsdk/mavlink/common/mavlink.h>
-#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
-#include <mavsdk/plugins/offboard/offboard.h>
+#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.hpp>
+#include <mavsdk/plugins/offboard/offboard.hpp>
 
 
 #include <atomic>
@@ -57,7 +57,8 @@ public:
 
     void test0_async();
     bool setCurrentPositionAsHome();
-
+    void testAllMotors(float percent, float timeout);
+    void testMotor(int motorIndex, float percent, float timeout);
 
     std::shared_ptr<mavsdk::System> getSystem() {
         return m_system;
