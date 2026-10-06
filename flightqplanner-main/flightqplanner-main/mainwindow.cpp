@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->startVelMissionOffboardButton, &QPushButton::clicked, this, &MainWindow::executeVelocityOffboardClicked);
     connect(ui->landPushButton, &QPushButton::clicked, this, &MainWindow::landClicked);
     connect(ui->setHomePushButton, &QPushButton::clicked, this, &MainWindow::setHomeClicked);
+    connect(ui->testMotorButton, &QPushButton::clicked, this, &MainWindow::testMotorClicked);
+    connect(ui->testAllMotorsButton, &QPushButton::clicked, this, &MainWindow::testAllMotorsClicked);
 
 
 
@@ -168,6 +170,54 @@ void MainWindow::setHomeClicked()
 {
     qDebug() << "setHomeClicked";
     m_controller->setCurrentPositionAsHome();
+}
+
+void MainWindow::testMotorClicked() {
+    //Arayüzdeki değerleri al
+    int motorIndex = ui->motorIndexSpinBox->value();
+    float throttle = ui->throttleSpinBox->value();
+    float timeout = ui->timeoutSpinBox->value();
+
+    //Güvenlik kontrolü
+    if(m_controller->isArmed()){
+        QMessageBox::warning(this, "Güvenlik", "Drone Armed durumundayken test yapılamaz.");
+        return;
+    }
+
+    // Arka planı tetikle
+    m_controller->testMotor(motorIndex, throttle, timeout);
+
+    if(throttle > 20) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "DİKKAT!",
+                                      "Güç %20'nin üzerinde! Pervanelerin sökülü olduğundan emin misiniz?",
+                                      QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            return; // Kullanıcı iptal ederse arka plana komut gönderme
+        }
+    }
+}
+
+void MainWindow::testAllMotorsClicked() {
+    float throttle = ui->throttleSpinBox->value();
+    float timeout = ui->timeoutSpinBox->value();
+
+    if(m_controller->isArmed()){
+        QMessageBox::warning(this, "Güvenlik", "Drone Armed durumundayken test yapılamaz.");
+        return;
+    }
+
+    m_controller->testAllMotors(throttle,timeout);
+
+    if(throttle > 20) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "DİKKAT!",
+                                      "Güç %20'nin üzerinde! Pervanelerin sökülü olduğundan emin misiniz?",
+                                      QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            return; // Kullanıcı iptal ederse arka plana komut gönderme
+        }
+    }
 }
 
 void MainWindow::updateGPSData(double lat, double log, double absAlt, double relAlt)

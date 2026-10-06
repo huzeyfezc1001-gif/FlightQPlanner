@@ -34,6 +34,8 @@ private slots:
     void executeVelocityOffboardClicked();
     void landClicked();
     void setHomeClicked();
+    void testMotorClicked();
+    void testAllMotorsClicked();
 
     void updateGPSData(double lat, double log, double absAlt, double relAlt);
     void updateGPSInfo(int satCnt);

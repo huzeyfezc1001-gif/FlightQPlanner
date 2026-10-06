@@ -1,16 +1,19 @@
 #include "mainwindow.h"
-#include "qdir.h"
-
 #include <QApplication>
 #include <QStyleFactory>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    a.setStyle(QStyleFactory::create("Fusion"));
+
     QFile file(":/modern-default.css");
     if (file.open(QFile::ReadOnly | QFile::Text)) {
-        qDebug() << "read.";
+        qDebug() << "Stil dosyasi okundu.";
         QTextStream ts(&file);
         QString styleSheet = ts.readAll();
         a.setStyleSheet(styleSheet);

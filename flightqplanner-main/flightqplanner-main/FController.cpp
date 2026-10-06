@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-#include <mavsdk/plugins/mission/mission.h>
+#include <mavsdk/plugins/mission/mission.hpp>
 
 using namespace mavsdk;
 using namespace std::chrono_literals;
@@ -52,7 +52,7 @@ bool FController::connect() {
     }
 
     // 1. Bağlantıyı kur
-    auto connection_result = m_mavsdk->add_any_connection(connection_url);
+    auto connection_result = m_mavsdk->add_any_connection("serial:///dev/cu.usbserial-D30K1O7S:57600");
     if (connection_result != ConnectionResult::Success) {
         std::cerr << "Bağlantı hatası: " << connection_result << std::endl;
         return false;
@@ -653,4 +653,47 @@ bool FController::reachedTarget(double targetLat, double targetLon, double targe
 
     double dist = sqrt(dNorth*dNorth + dEast*dEast + dAlt*dAlt);
     return dist < threshold_m;
+}
+
+
+void FController::testMotor(int motorIndex, float percent, float timeout){
+    std::cout << "----- Motor Test ---- Motor: " << motorIndex << " Guc: %" << percent << std::endl;
+
+    //Drone'a göndermek için posta hazırlama
+    mavlink_message_t message;
+    mavlink_command_long_t cmd{};
+
+    //Postanın gideceği yer
+    cmd.target_system = m_mavlink->get_target_sysid();
+    cmd.target_component = m_mavlink->get_target_compid();
+
+    //Gönderilen komut
+    cmd.command = MAV_CMD_DO_MOTOR_TEST;
+    cmd.confirmation = 0;
+
+    cmd.param1 = motorIndex; //Hangi Motor
+    cmd.param2 = 0; //Güç Tipi
+    cmd.param3 = percent; //Güç Yüzdesi
+    cmd.param4 = timeout; //Testin Süreceği Miktar
+    cmd.param5 = 1; //Kaç Motor Test Edliecek
+    cmd.param6 = 0; //Motor Test Sırası
+    cmd.param7 = 0; //Boş
+
+    //Paketle Ve Gönder
+    mavlink_msg_command_long_encode(
+        m_mavlink->get_our_sysid(),
+        m_mavlink->get_our_compid(),
+        &message,
+        &cmd);
+
+    //Ağa Gönder
+    m_mavlink->send_message(message);
+}
+
+void FController::testAllMotors(float percent, float timeout){
+    std::cout << "----- Motor Test ---- Testing All Motors Pwr: %" << percent << std::endl;
+    for(int i = 1; i <= 4; i++){
+        testMotor(i, percent, timeout);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 }
